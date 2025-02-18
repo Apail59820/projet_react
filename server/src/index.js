@@ -1,14 +1,19 @@
-import express from "express"
-import 'dotenv/config'
+import express from "express";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import authRoutes from '../src/routes/authRoutes.js'
+import mongoose from "mongoose";
+import config from "./config.js";
 
 const app = express();
 
-const { PORT } = process.env;
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
-app.get('ping', (req, res) => {
-    return res.end('Pong')
-});
+app.use("/api/auth", authRoutes);
 
-app.listen(PORT, () => {
-    console.log(`Listenning on port ${PORT}`);
-})
+mongoose.connect(config.mongoURI).then(() => console.log("MongoDb connected."))
+    .catch(err => console.error("Error connecting to MongoDB:", err));
+
+app.listen(config.port, () => console.log(`Server listenning on port : ${config.port}`));
